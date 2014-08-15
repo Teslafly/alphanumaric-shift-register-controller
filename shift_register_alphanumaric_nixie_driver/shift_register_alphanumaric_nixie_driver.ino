@@ -1,7 +1,15 @@
-int shiftSER = 8;   //pin 14 on the 75HC595
-int shiftRCLK = 9;  //pin 12 on the 75HC595
-int shiftSRCLK = 10; //pin 11 on the 75HC595
+//based on modified example code to drive shift registers.
+//This program drives alphanumaric displays using shift registers. Originally developed to drive alphanumaric nixie tubes and involves no charlieplexing.
+// code does not currently work.
 
+
+//constants and other settings.
+//////////////////////////////////////////////////////////////////////////
+
+//pins
+#define shiftSER  8   //pin 14 on the 75HC595
+#define shiftRCLK 9   //pin 12 on the 75HC595
+#define shiftSRCLK 10 //pin 11 on the 75HC595
 
 //How many of the shift registers - change this
 #define number_of_74hc595s 2 
@@ -9,8 +17,18 @@ int shiftSRCLK = 10; //pin 11 on the 75HC595
 //do not touch
 #define numOfRegisterPins number_of_74hc595s * 8
 
-boolean registers[numOfRegisterPins];
 
+
+//variables for use in program
+//////////////////////////////////////////////////////////////////////////
+
+boolean registers[numOfRegisterPins];
+int NextChar;
+
+
+
+//subroutines
+//////////////////////////////////////////////////////////////////////////
 
 //set all register pins to LOW
 void clearRegisters(){
@@ -45,8 +63,8 @@ void setRegisterPin(int index, int value){
 }
 
 
-
-
+//setup. Runs once at microcontroller boot
+//////////////////////////////////////////////////////////////////////////
 
 void setup(){
   pinMode(shiftSER, OUTPUT);
@@ -61,17 +79,30 @@ void setup(){
 }               
 
 
+
+// loop, runs infinately after microcontroller completes setup
+//////////////////////////////////////////////////////////////////////////
+
 void loop(){
 
   
+  // for reference only, remove before releasing code.
+  /*
   // pin3
     if( digitalRead(in2) == LOW) {
     setRegisterPin(2, HIGH);
   } else  {
     setRegisterPin(2, LOW);
   }  
+ */
  
-   // set array to segment values of charecter for NextChar
+ 
+ if (Serial.available() > 0) { // send charecter to NextChar 
+    // get incoming byte:
+    NextChar = Serial.read(); // 
+ }
+ 
+   // set array to segment values of charecter for NextChar and shiftout if newline is sent
   switch (NextChar) {
     
     ///////////////////////  
@@ -131,7 +162,7 @@ void loop(){
       // default is all segments on
   }
 
-  writeRegisters();  //MUST BE CALLED TO ADD LETTER TO REGISTERS
+  writeRegisters();  //should be called in it's own case. segments should otherwise be added to registers until then.
   
   
   
